@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>BinaryShop - Administrador</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h2>BinaryShop - Panel de Administrador</h2>
+        <div class="nav-links">
+            <span id="userGreeting" style="margin-right: 15px;"></span>
+            <button onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <h3>Gestión de Usuarios (Predefinidos en Código Fuente)</h3>
+        <table>
+            <thead><tr><th>Usuario</th><th>Rol</th></tr></thead>
+            <tbody id="adminUsersBody"></tbody>
+        </table>
+
+        <h3 style="margin-top: 2rem;">Gestión Global de Productos</h3>
+        <table>
+            <thead><tr><th>ID</th><th>Nombre</th><th>Vendedor</th><th>Acción</th></tr></thead>
+            <tbody id="adminProductsBody"></tbody>
+        </table>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || currentUser.role !== 'administrador') window.location.href = 'login.html';
+        document.getElementById('userGreeting').innerText = `Hola, ${currentUser.username}`;
+
+        function renderAdmin() {
+
+            const usersBody = document.getElementById('adminUsersBody');
+            usersBody.innerHTML = '';
+            USERS.forEach(u => {
+                usersBody.innerHTML += `
+                    <tr>
+                        <td>${u.username}</td>
+                        <td>${u.role}</td>
+                    </tr>
+                `;
+            });
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const prodBody = document.getElementById('adminProductsBody');
+            prodBody.innerHTML = '';
+            products.forEach(p => {
+                prodBody.innerHTML += `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>${p.seller}</td>
+                        <td><button class="btn btn-danger" onclick="deleteProduct(${p.id})" style="padding: 5px;">Eliminar</button></td>
+                    </tr>
+                `;
+            });
+        }
+        renderAdmin();
+
+        function deleteProduct(id) {
+            if (confirm('¿Estás seguro de eliminar este producto?')) {
+                let products = JSON.parse(localStorage.getItem('products'));
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                renderAdmin();
+            }
+        }
+    </script>
+</body>
+</html>
